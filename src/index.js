@@ -2,9 +2,9 @@ import "./pages/index.css"; // добавили импорт главного ф
 
 import { initialCards } from "./scripts/cards.js";
 
-import { renderCard } from "./components/card.js";
+import { renderCard } from "./scripts/components/card.js";
 
-import { openPopup, closePopup } from "./components/modal.js";
+import { openPopup, closePopup } from "./scripts/components/modal.js";
 
 //переменные
 
