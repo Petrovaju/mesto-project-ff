@@ -38,6 +38,8 @@ const closeProfilePopup = profileEditPopup.querySelector(".popup__close"); //з�
 const editProfileForm = document.querySelector('form[name="edit-profile"');
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
+const nameInput = document.querySelector(".popup__input_type_name");
+const jobInput = document.querySelector(".popup__input_type_description");
 
 //открываем попапы
 
@@ -46,15 +48,8 @@ addCardButton.addEventListener("click", function () {
 });
 
 profileEditButton.addEventListener("click", function () {
-  const profileEditNameInput = editProfileForm.querySelector(
-    ".popup__input_type_name"
-  );
-  const profileEditDescriptionInput = editProfileForm.querySelector(
-    ".popup__input_type_description"
-  );
-
-  profileEditNameInput.value = profileTitle.textContent;
-  profileEditDescriptionInput.value = profileDescription.textContent;
+  nameInput.value = profileTitle.textContent;
+  jobInput.value = profileDescription.textContent;
 
   openPopup(profileEditPopup);
 });
@@ -68,9 +63,6 @@ closeProfilePopup.addEventListener("click", function () {
 });
 
 //редактировать профиль
-
-const nameInput = document.querySelector(".popup__input_type_name");
-const jobInput = document.querySelector(".popup__input_type_description");
 
 function handleFormSubmit(evt) {
   evt.preventDefault();
