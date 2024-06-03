@@ -12,15 +12,11 @@ function createCard(cardData, deleteCallback, openPopupCallback, profileID) {
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
   const likeCount = cardElement.querySelector(".card__like-count");
-  let likeCallbackType = "undefined";
   if (profileID !== cardData.owner._id) {
     deleteButton.hidden = true;
   }
   if (isCardLiked(cardData, profileID)) {
     likeButton.classList.add("card__like-button_is-active");
-    likeCallbackType = "delete";
-  } else {
-    likeCallbackType = "create";
   }
   likeCount.textContent = cardData.likes.length;
   cardTitle.textContent = cardData.name;
@@ -29,13 +25,7 @@ function createCard(cardData, deleteCallback, openPopupCallback, profileID) {
   deleteButton.addEventListener("click", deleteCallback);
 
   likeButton.addEventListener("click", function () {
-    if (likeCallbackType === "create") {
-      likeCard(likeButton, likeCount, cardData);
-    } else if (likeCallbackType === "delete") {
-      removeLikeCard(likeButton, likeCount, cardData);
-    } else {
-      console.log("Undefined card like callback type");
-    }
+    handleCardLike(likeButton, likeCount, cardData);
   });
   cardImage.addEventListener("click", openPopupCallback);
 
@@ -67,22 +57,17 @@ function isCardLiked(cardData, profileID) {
   });
 }
 
-function likeCard(likeButton, likeCount, card) {
-  addLike(card)
-    .then(function (res) {
-      likeButton.classList.add("card__like-button_is-active");
-      likeCount.textContent = res.likes.length;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
+function handleCardLike(likeButton, likeCount, card) {
+  const handleMethod = likeButton.classList.contains(
+    "card__like-button_is-active"
+  )
+    ? deleteLike
+    : addLike;
 
-function removeLikeCard(likeButton, likeCount, card) {
-  deleteLike(card)
-    .then(function (res) {
-      likeButton.classList.remove("card__like-button_is-active");
-      likeCount.textContent = res.likes.length;
+  handleMethod(card)
+    .then(function (cardData) {
+      likeButton.classList.toggle("card__like-button_is-active");
+      likeCount.textContent = cardData.likes.length;
     })
     .catch((err) => {
       console.log(err);
