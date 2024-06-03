@@ -1,7 +1,9 @@
+import { addLike, deleteLike } from "../api";
+
 const cardTemplate = document.querySelector("#card-template").content;
 const placesList = document.querySelector(".places__list");
 
-function createCard(cardData, deleteCallback, openPopupCallback, likeCallback) {
+function createCard(cardData, deleteCallback, openPopupCallback, profileID) {
   const cardElement = cardTemplate
     .querySelector(".places__item")
     .cloneNode(true);
@@ -9,35 +11,80 @@ function createCard(cardData, deleteCallback, openPopupCallback, likeCallback) {
   const cardTitle = cardElement.querySelector(".card__title");
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
+  const likeCount = cardElement.querySelector(".card__like-count");
+  let likeCallbackType = "undefined";
+  if (profileID !== cardData.owner._id) {
+    deleteButton.hidden = true;
+  }
+  if (isCardLiked(cardData, profileID)) {
+    likeButton.classList.add("card__like-button_is-active");
+    likeCallbackType = "delete";
+  } else {
+    likeCallbackType = "create";
+  }
+  likeCount.textContent = cardData.likes.length;
   cardTitle.textContent = cardData.name;
   cardImage.src = cardData.link;
   cardImage.alt = cardData.name;
   deleteButton.addEventListener("click", deleteCallback);
 
-  likeButton.addEventListener("click", likeCallback);
+  likeButton.addEventListener("click", function () {
+    if (likeCallbackType === "create") {
+      likeCard(likeButton, likeCount, cardData);
+    } else if (likeCallbackType === "delete") {
+      removeLikeCard(likeButton, likeCount, cardData);
+    } else {
+      console.log("Undefined card like callback type");
+    }
+  });
   cardImage.addEventListener("click", openPopupCallback);
 
   return cardElement;
 }
 
-export function renderCard(cardData, openPopupCallback) {
+export function renderCard(
+  cardData,
+  openPopupCallback,
+  deleteCallback,
+  profileID
+) {
   const cardElement = createCard(
     cardData,
-    deleteCard,
+    deleteCallback,
     openPopupCallback,
-    likeCard
+    profileID
   );
   placesList.prepend(cardElement);
 }
 
-// @todo: Функция удаления карточки
+function isCardLiked(cardData, profileID) {
+  if (cardData.likes.length === 0) {
+    return false;
+  }
 
-function deleteCard(evt) {
-  evt.target.closest(".places__item").remove();
+  return cardData.likes.some(function (element) {
+    return element._id === profileID;
+  });
 }
 
-//лайк карточки
+function likeCard(likeButton, likeCount, card) {
+  addLike(card)
+    .then(function (res) {
+      likeButton.classList.add("card__like-button_is-active");
+      likeCount.textContent = res.likes.length;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
-function likeCard(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+function removeLikeCard(likeButton, likeCount, card) {
+  deleteLike(card)
+    .then(function (res) {
+      likeButton.classList.remove("card__like-button_is-active");
+      likeCount.textContent = res.likes.length;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
